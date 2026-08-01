@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Voice — Analysis Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#F6F2E9; --paper-2:#EFE9DA; --ink:#242524; --ink-soft:#5B5A54;
+    --navy:#17233D; --brass:#AD8A4E; --brass-light:#E7D9B8;
+    --oxblood:#6E2A34; --sage:#4C6B4F; --sage-light:#DCE6DA; --line:#D9D2C0;
+    --red:#B23A48; --amber:#C08A2E; --green:#4C6B4F;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans','Segoe UI',Arial,sans-serif;line-height:1.5;}
+  h1,h2,h3{font-family:'Source Serif 4','Georgia',serif;margin:0;}
+  .masthead{background:var(--navy);color:var(--paper);padding:30px 24px;}
+  .masthead-inner{max-width:960px;margin:0 auto;}
+  .masthead h1{font-size:26px;font-weight:600;}
+  .masthead p{margin:6px 0 0;color:rgba(246,242,233,0.72);font-size:14px;}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
+
+  .upload-card{
+    background:var(--paper-2); border:1.5px dashed var(--brass); border-radius:4px;
+    padding:28px; text-align:center; margin-bottom:32px;
+  }
+  .upload-card input{display:none;}
+  .upload-card label.btn{
+    display:inline-block; background:var(--navy); color:var(--paper);
+    padding:11px 26px; border-radius:3px; font-weight:600; cursor:pointer; font-size:14.5px;
+  }
+  .upload-card .hint{font-size:12.5px;color:var(--ink-soft);margin-top:12px;max-width:60ch;margin-left:auto;margin-right:auto;}
+  .upload-card .filename{font-size:13px;color:var(--sage);margin-top:10px;font-weight:600;}
+
+  #dashboard{display:none;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
+  .stat-box{background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px;text-align:center;}
+  .stat-box .num{font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;color:var(--navy);}
+  .stat-box .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-soft);margin-top:4px;}
+
+  section.block{margin-bottom:44px;}
+  .block-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:18px;}
+  .block-letter{font-family:'Source Serif 4',serif;font-size:14px;font-weight:600;color:var(--paper);background:var(--navy);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .block-letter.oxblood{background:var(--oxblood);}
+  .block-letter.sage{background:var(--sage);}
+  .block-titles h2{font-size:18px;font-weight:600;}
+  .block-titles .tag{font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;}
+
+  .metric-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:12px 16px;}
+  .metric-row .metric-label{flex:0 0 260px;font-size:13.5px;}
+  .metric-row .bar-track{flex:1;height:10px;background:var(--paper-2);border-radius:6px;overflow:hidden;}
+  .metric-row .bar-fill{height:100%;border-radius:6px;}
+  .metric-row .metric-val{flex:0 0 54px;text-align:right;font-weight:600;font-size:13.5px;}
+  .flag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:0.03em;padding:2px 7px;border-radius:20px;margin-left:8px;}
+  .flag.priority{background:#FBE4E4;color:var(--red);}
+  .flag.watch{background:#FBF0DA;color:var(--amber);}
+  .flag.healthy{background:var(--sage-light);color:var(--sage);}
+
+  .theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:640px){.theme-grid{grid-template-columns:1fr;} .stat-row{grid-template-columns:1fr;} .metric-row .metric-label{flex-basis:180px;}}
+  .theme-card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:16px;}
+  .theme-card h3{font-size:14px;margin-bottom:10px;color:var(--navy);}
+  .theme-word{display:inline-flex;align-items:center;gap:6px;background:var(--paper-2);border-radius:20px;padding:4px 12px;font-size:12.5px;margin:0 6px 6px 0;}
+  .theme-word b{color:var(--oxblood);}
+
+  .response-list{max-height:280px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:4px;}
+  .response-list .item{padding:11px 16px;font-size:13.5px;border-bottom:1px solid var(--paper-2);}
+  .response-list .item:last-child{border-bottom:none;}
+  .response-list .item:nth-child(odd){background:#FBFAF6;}
+
+  .disagg-note{font-size:12px;color:var(--ink-soft);font-style:italic;margin-top:8px;}
+
+  .chart-wrap{background:#fff;border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:16px;}
+
+  .export-zone{margin-top:44px;padding-top:24px;border-top:2px solid var(--navy);}
+  .export-zone textarea{width:100%;min-height:220px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:14px;border:1px solid var(--line);border-radius:4px;background:#FBFAF6;}
+  button.copy-btn{background:var(--navy);color:var(--paper);border:none;padding:10px 22px;border-radius:3px;font-weight:600;cursor:pointer;font-size:13.5px;margin-top:10px;}
+  button.copy-btn:hover{background:#0f1830;}
+  .copied-msg{font-size:12.5px;color:var(--sage);margin-left:12px;display:none;}
+
+  footer{text-align:center;font-size:11.5px;color:var(--ink-soft);padding:24px;}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <h1>Staff Voice — Analysis Dashboard</h1>
+    <p>Runs entirely in your browser. Nothing here is uploaded anywhere — the CSV you load never leaves this device.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="upload-card" id="uploadCard">
+    <label class="btn" for="csvInput">Load Response CSV</label>
+    <input type="file" id="csvInput" accept=".csv">
+    <div class="hint">In your Google Sheet: <b>File → Download → Comma Separated Values (.csv)</b>, then load it here. Column headers must match the form's field names (Timestamp, wb_worklife, wl_planning, etc.) — this is automatic if you're using the paired Apps Script backend.</div>
+    <div class="filename" id="filenameShown"></div>
+  </div>
+
+  <div id="dashboard">
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="num" id="statTotal">0</div><div class="lbl">Responses Loaded</div></div>
+      <div class="stat-box"><div class="num" id="statFlags">0</div><div class="lbl">Priority Flags Raised</div></div>
+      <div class="stat-box"><div class="num" id="statOpen">0</div><div class="lbl">Open-Text Entries</div></div>
+    </div>
+
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter">A</div>
+        <div class="block-titles"><h2>Wellbeing Pulse</h2><div class="tag">Average score per statement · higher = better</div></div>
+      </div>
+      <div id="sectionA"></div>
+      <div class="theme-grid" style="margin-top:18px;">
+        <div class="theme-card"><h3>What's quietly wearing people down — top themes</h3><div id="wbThemes"></div></div>
+        <div class="theme-card"><h3>Raw responses</h3><div class="response-list" id="wbOpenList"></div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter oxblood">B</div>
+        <div class="block-titles"><h2>Workload Concerns</h2><div class="tag">Ranked heaviest first · higher = more strain</div></div>
+      </div>
+      <div id="sectionB"></div>
+      <div class="theme-grid" style="margin-top:18px;">
+        <div class="theme-card"><h3>What staff would remove first — top themes</h3><div id="wlThemes"></div></div>
+        <div class="theme-card"><h3>Raw responses</h3><div class="response-list" id="wlOpenList"></div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter sage">C</div>
+        <div class="block-titles"><h2>Good Practice Spotlight</h2><div class="tag">Candidates for the resource library / Teacher of the Month</div></div>
+      </div>
+      <div class="theme-grid">
+        <div class="theme-card"><h3>Practices shared</h3><div class="response-list" id="gpPracticeList"></div></div>
+        <div class="theme-card"><h3>Colleagues recognised</h3><div class="response-list" id="gpColleagueList"></div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter">D</div>
+        <div class="block-titles"><h2>Staff Voice — Open Floor</h2><div class="tag">Read in full — this is where nuance lives</div></div>
+      </div>
+      <div class="theme-grid">
+        <div class="theme-card"><h3>One thing to change</h3><div class="response-list" id="svChangeList"></div></div>
+        <div class="theme-card"><h3>What leadership might not know</h3><div class="response-list" id="svUnknownList"></div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter" style="background:#5B5A54;">i</div>
+        <div class="block-titles"><h2 style="font-size:16px;">Context Breakdown</h2><div class="tag">Only shown where a group has 5+ responses</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="wingChart" height="90"></canvas><div class="disagg-note" id="wingNote"></div></div>
+    </section>
+
+    <div class="export-zone">
+      <h2 style="font-size:18px;margin-bottom:10px;">Draft Summary for the Feedback-Loop Circular</h2>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">Auto-generated from the numbers above — edit before pasting into the circular template, don't paste it verbatim.</p>
+      <textarea id="summaryOutput" readonly></textarea>
+      <br>
+      <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+      <span class="copied-msg" id="copiedMsg">Copied.</span>
+    </div>
+
+  </div>
+</div>
+
+<footer>Staff Voice Analysis Dashboard · Podar International School, Jahangirabad · Offline, client-side only</footer>
+
+<script>
+const STOPWORDS = new Set(("the a an and or but if then so to of in on at for with without from by as is are was were be been being "+
+  "this that these those it its it's i we you they he she them our your their my me us him her not no yes very much more most "+
+  "just really quite also can could would should will shall have has had do does did about into over under between during "+
+  "school staff students student teacher teachers work working sometimes always never often").split(" "));
+
+function wordFreq(texts, topN){
+  const counts = {};
+  texts.forEach(t => {
+    if(!t) return;
+    (t.toLowerCase().match(/[a-z']{3,}/g) || []).forEach(w => {
+      if(STOPWORDS.has(w)) return;
+      counts[w] = (counts[w]||0)+1;
+    });
+  });
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, topN);
+}
+
+function avg(nums){
+  const valid = nums.filter(n => !isNaN(n) && n !== null && n !== '');
+  if(!valid.length) return null;
+  return valid.reduce((a,b)=>a+Number(b),0)/valid.length;
+}
+
+function barColor(score, worseIsHigh){
+  const bad = worseIsHigh ? score >= 3.5 : score <= 2.5;
+  const watch = worseIsHigh ? (score >= 2.8 && score < 3.5) : (score > 2.5 && score <= 3.4);
+  if(bad) return {color:'var(--red)', flag:'priority', label:'Priority'};
+  if(watch) return {color:'var(--amber)', flag:'watch', label:'Watch'};
+  return {color:'var(--green)', flag:'healthy', label:'Healthy'};
+}
+
+function renderMetricRow(container, label, score, worseIsHigh){
+  if(score === null){ return; }
+  const pct = (score/5)*100;
+  const c = barColor(score, worseIsHigh);
+  const row = document.createElement('div');
+  row.className = 'metric-row';
+  row.innerHTML = `
+    <div class="metric-label">${label}<span class="flag ${c.flag}">${c.label}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${c.color}"></div></div>
+    <div class="metric-val">${score.toFixed(2)} / 5</div>
+  `;
+  container.appendChild(row);
+  return c.flag === 'priority';
+}
+
+function renderList(container, texts){
+  container.innerHTML = '';
+  const filtered = texts.filter(t => t && t.trim().length);
+  if(!filtered.length){ container.innerHTML = '<div class="item" style="color:var(--ink-soft);font-style:italic;">No entries submitted.</div>'; return; }
+  filtered.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'item';
+    d.textContent = t;
+    container.appendChild(d);
+  });
+}
+
+function renderThemes(container, texts){
+  container.innerHTML = '';
+  const themes = wordFreq(texts, 10);
+  if(!themes.length){ container.innerHTML = '<span style="font-size:12.5px;color:var(--ink-soft);">Not enough text to extract themes.</span>'; return; }
+  themes.forEach(([w,c]) => {
+    const span = document.createElement('span');
+    span.className = 'theme-word';
+    span.innerHTML = `${w} <b>${c}</b>`;
+    container.appendChild(span);
+  });
+}
+
+let wingChartInstance = null;
+
+function processData(rows){
+  document.getElementById('uploadCard').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  document.getElementById('statTotal').textContent = rows.length;
+
+  const openFields = ['wb_open','wl_open','gp_practice','gp_colleague','sv_change','sv_unknown'];
+  const openCount = rows.reduce((sum,r) => sum + openFields.filter(f => r[f] && r[f].trim()).length, 0);
+  document.getElementById('statOpen').textContent = openCount;
+
+  // Section A
+  const secA = document.getElementById('sectionA');
+  secA.innerHTML = '';
+  let flags = 0;
+  const A_FIELDS = [
+    ['wb_worklife','Leaves work at work (no take-home mental load)'],
+    ['wb_support','Feels supported / heard when something is wrong'],
+    ['wb_stress','Stress manageable (not overwhelming)'],
+    ['wb_valued','Feels noticed and valued'],
+  ];
+  const aScores = {};
+  A_FIELDS.forEach(([key,label]) => {
+    const score = avg(rows.map(r => r[key]));
+    aScores[key] = score;
+    if(renderMetricRow(secA, label, score, false)) flags++;
+  });
+
+  // Section B
+  const secB = document.getElementById('sectionB');
+  secB.innerHTML = '';
+  const B_FIELDS = [
+    ['wl_planning','Lesson planning & DTP documentation'],
+    ['wl_duties','Non-teaching duties'],
+    ['wl_assessment','Assessment & correction load'],
+    ['wl_meetings','Meetings & briefings'],
+  ];
+  const bScored = B_FIELDS.map(([key,label]) => [key,label, avg(rows.map(r => r[key]))])
+                           .filter(x => x[2] !== null)
+                           .sort((x,y) => y[2]-x[2]);
+  bScored.forEach(([key,label,score]) => {
+    if(renderMetricRow(secB, label, score, true)) flags++;
+  });
+
+  document.getElementById('statFlags').textContent = flags;
+
+  // Themes + raw lists
+  renderThemes(document.getElementById('wbThemes'), rows.map(r=>r.wb_open));
+  renderList(document.getElementById('wbOpenList'), rows.map(r=>r.wb_open));
+
+  renderThemes(document.getElementById('wlThemes'), rows.map(r=>r.wl_open));
+  renderList(document.getElementById('wlOpenList'), rows.map(r=>r.wl_open));
+
+  renderList(document.getElementById('gpPracticeList'), rows.map(r=>r.gp_practice));
+  renderList(document.getElementById('gpColleagueList'), rows.map(r=>r.gp_colleague));
+
+  renderList(document.getElementById('svChangeList'), rows.map(r=>r.sv_change));
+  renderList(document.getElementById('svUnknownList'), rows.map(r=>r.sv_unknown));
+
+  // Context breakdown with anonymity floor (n >= 5)
+  const wingGroups = {};
+  rows.forEach(r => {
+    const w = (r.ctx_wing || '').trim() || 'Not specified';
+    wingGroups[w] = (wingGroups[w]||0)+1;
+  });
+  const validWings = Object.entries(wingGroups).filter(([k,v]) => v >= 5 && k !== 'Not specified');
+  const suppressed = Object.entries(wingGroups).filter(([k,v]) => v < 5 && k !== 'Not specified');
+
+  const ctx = document.getElementById('wingChart').getContext('2d');
+  if(wingChartInstance) wingChartInstance.destroy();
+  if(validWings.length){
+    wingChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: validWings.map(x=>x[0]),
+        datasets: [{ label:'Responses', data: validWings.map(x=>x[1]), backgroundColor:'#17233D' }]
+      },
+      options: { plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
+    });
+  }
+  document.getElementById('wingNote').textContent = suppressed.length
+    ? `${suppressed.map(x=>x[0]).join(', ')} had fewer than 5 responses and are pooled rather than shown individually, to protect anonymity.`
+    : (validWings.length ? '' : 'Not enough responses per wing yet to disaggregate safely.');
+
+  // Draft summary generator
+  const priorityA = A_FIELDS.filter(([k]) => aScores[k] !== null && aScores[k] <= 2.5);
+  const priorityB = bScored.filter(x => x[2] >= 3.5);
+  const wbTop = wordFreq(rows.map(r=>r.wb_open), 3).map(x=>x[0]);
+  const wlTop = wordFreq(rows.map(r=>r.wl_open), 3).map(x=>x[0]);
+
+  let summary = `STAFF VOICE — DRAFT SUMMARY (auto-generated, edit before use)\n`;
+  summary += `Responses analysed: ${rows.length}\n\n`;
+  summary += `SECTION A — WELLBEING\n`;
+  summary += priorityA.length
+    ? priorityA.map(([k,label]) => `- Priority: "${label}" scored ${aScores[k].toFixed(2)}/5 — below healthy range.`).join('\n')
+    : '- No wellbeing item fell into the priority range this cycle.';
+  summary += `\n- Recurring words in open responses: ${wbTop.join(', ') || 'none extracted'}\n\n`;
+  summary += `SECTION B — WORKLOAD\n`;
+  summary += priorityB.length
+    ? priorityB.map(x => `- Priority: "${x[1]}" scored ${x[2].toFixed(2)}/5 — highest strain reported.`).join('\n')
+    : '- No workload category crossed into unsustainable range this cycle.';
+  summary += `\n- Recurring words in open responses: ${wlTop.join(', ') || 'none extracted'}\n\n`;
+  summary += `SECTION C — GOOD PRACTICE\n- ${rows.filter(r=>r.gp_practice && r.gp_practice.trim()).length} practice(s) shared — review the raw list above for resource-library candidates.\n\n`;
+  summary += `SECTION D — STAFF VOICE\n- ${rows.filter(r=>r.sv_change && r.sv_change.trim()).length} response(s) to "one thing to change" — read individually, these don't summarise well without losing nuance.`;
+
+  document.getElementById('summaryOutput').value = summary;
+}
+
+document.getElementById('csvInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  document.getElementById('filenameShown').textContent = 'Loaded: ' + file.name;
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results){
+      processData(results.data);
+    }
+  });
+});
+
+document.getElementById('copyBtn').addEventListener('click', function(){
+  const ta = document.getElementById('summaryOutput');
+  ta.select();
+  document.execCommand('copy');
+  const msg = document.getElementById('copiedMsg');
+  msg.style.display = 'inline';
+  setTimeout(()=> msg.style.display = 'none', 2000);
+});
+</script>
+
+</body>
+</html>

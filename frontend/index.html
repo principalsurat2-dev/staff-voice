@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Voice — Podar International School, Jahangirabad</title>
+<style>
+  :root{
+    --paper:#F6F2E9;
+    --paper-2:#EFE9DA;
+    --ink:#242524;
+    --ink-soft:#5B5A54;
+    --navy:#17233D;
+    --navy-2:#22315499;
+    --brass:#AD8A4E;
+    --brass-light:#E7D9B8;
+    --oxblood:#6E2A34;
+    --sage:#4C6B4F;
+    --sage-light:#DCE6DA;
+    --line: rgba(23,35,61,0.14);
+    --radius: 3px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  @font-face{font-family:'Source Serif 4';src:local('Source Serif 4');}
+
+  h1,h2,h3,.serif{
+    font-family:'Source Serif 4','Georgia',serif;
+  }
+
+  .mono{
+    font-family:'IBM Plex Mono','Courier New',monospace;
+    letter-spacing:0.06em;
+  }
+
+  a{color:var(--navy);}
+
+  /* ===== Header / Masthead ===== */
+  .masthead{
+    background:var(--navy);
+    color:var(--paper);
+    padding:38px 24px 30px;
+    position:relative;
+    overflow:hidden;
+  }
+  .masthead::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 44px);
+    pointer-events:none;
+  }
+  .masthead-inner{
+    max-width:720px;
+    margin:0 auto;
+    position:relative;
+  }
+  .eyebrow{
+    font-size:11px;
+    text-transform:uppercase;
+    color:var(--brass-light);
+    margin-bottom:14px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .eyebrow .rule{flex:1;height:1px;background:rgba(231,217,184,0.35);}
+  .masthead h1{
+    font-size:clamp(28px,4.5vw,40px);
+    font-weight:600;
+    margin:0 0 8px;
+    letter-spacing:0.01em;
+  }
+  .masthead p.sub{
+    margin:0;
+    color:rgba(246,242,233,0.72);
+    font-size:15px;
+    max-width:56ch;
+  }
+
+  /* Seal */
+  .seal-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-top:26px;
+    padding-top:22px;
+    border-top:1px solid rgba(231,217,184,0.2);
+  }
+  .seal{
+    flex:0 0 auto;
+    width:60px;height:60px;
+  }
+  .seal-text{
+    font-size:13px;
+    color:rgba(246,242,233,0.85);
+    max-width:52ch;
+  }
+  .seal-text b{color:var(--brass-light); font-weight:600;}
+
+  /* ===== Body container ===== */
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:40px 24px 90px;
+  }
+
+  .intro-card{
+    background:var(--paper-2);
+    border-left:3px solid var(--brass);
+    padding:20px 22px;
+    border-radius:var(--radius);
+    font-size:14.5px;
+    color:var(--ink-soft);
+    margin-bottom:44px;
+  }
+  .intro-card p{margin:0 0 10px;}
+  .intro-card p:last-child{margin-bottom:0;}
+
+  /* ===== Sections ===== */
+  section.block{
+    margin-bottom:48px;
+  }
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:6px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:12px;
+  }
+  .block-letter{
+    font-family:'Source Serif 4',serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--paper);
+    background:var(--navy);
+    width:30px;height:30px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex:0 0 auto;
+  }
+  .block-letter.oxblood{background:var(--oxblood);}
+  .block-letter.sage{background:var(--sage);}
+  .block-titles h2{
+    font-size:19px;
+    margin:0;
+    font-weight:600;
+  }
+  .block-titles .tag{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  .block-desc{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:10px 0 22px;
+    max-width:62ch;
+  }
+
+  /* Likert */
+  .likert-item{
+    margin-bottom:22px;
+  }
+  .likert-q{
+    font-size:14.5px;
+    margin-bottom:10px;
+    font-weight:500;
+  }
+  .likert-scale{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:6px;
+  }
+  .likert-opt{
+    position:relative;
+  }
+  .likert-opt input{
+    position:absolute;
+    opacity:0;
+    width:100%;height:100%;
+    cursor:pointer;
+    margin:0;
+  }
+  .likert-opt label{
+    display:block;
+    text-align:center;
+    padding:9px 4px 8px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#fff;
+    cursor:pointer;
+    transition:all .12s ease;
+    line-height:1.3;
+  }
+  .likert-opt input:checked + label{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:var(--paper);
+  }
+  .likert-opt input:focus-visible + label{
+    outline:2px solid var(--brass);
+    outline-offset:1px;
+  }
+  .likert-caps{
+    display:flex;
+    justify-content:space-between;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+
+  /* text inputs */
+  textarea, select{
+    width:100%;
+    font-family:inherit;
+    font-size:14.5px;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#fff;
+    color:var(--ink);
+    resize:vertical;
+  }
+  textarea{min-height:88px;}
+  textarea:focus, select:focus{
+    outline:2px solid var(--brass);
+    outline-offset:0;
+  }
+  .field-label{
+    font-size:14.5px;
+    font-weight:500;
+    margin-bottom:8px;
+    display:block;
+  }
+  .field-hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  .field{margin-bottom:22px;}
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:520px){
+    .two-col{grid-template-columns:1fr;}
+    .likert-scale{grid-template-columns:repeat(5,1fr);}
+    .likert-opt label{font-size:10px;padding:8px 2px 7px;}
+  }
+
+  .optional-pill{
+    display:inline-block;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--sage);
+    background:var(--sage-light);
+    padding:2px 8px;
+    border-radius:20px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  /* Submit */
+  .submit-zone{
+    margin-top:56px;
+    padding-top:32px;
+    border-top:2px solid var(--navy);
+    text-align:center;
+  }
+  .submit-zone .reassure{
+    font-size:13px;
+    color:var(--ink-soft);
+    max-width:48ch;
+    margin:0 auto 22px;
+  }
+  button.submit-btn{
+    background:var(--navy);
+    color:var(--paper);
+    border:none;
+    font-family:'Source Serif 4',serif;
+    font-size:16px;
+    font-weight:600;
+    padding:14px 40px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  button.submit-btn:hover{background:#0f1830;}
+  button.submit-btn:disabled{opacity:0.6;cursor:wait;}
+
+  .status-msg{
+    margin-top:16px;
+    font-size:13.5px;
+  }
+  .status-msg.error{color:var(--oxblood);}
+
+  /* Thank you state */
+  #thankyou{
+    display:none;
+    text-align:center;
+    padding:60px 24px;
+    max-width:520px;
+    margin:0 auto;
+  }
+  #thankyou .seal{width:70px;height:70px;margin:0 auto 20px;}
+  #thankyou h2{font-size:24px;margin:0 0 12px;}
+  #thankyou p{color:var(--ink-soft);font-size:14.5px;}
+
+  footer.foot{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    padding:24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow"><span>PODAR INTERNATIONAL SCHOOL &nbsp;·&nbsp; JAHANGIRABAD, ADAJAN, SURAT</span><span class="rule"></span></div>
+    <h1>Staff Voice</h1>
+    <p class="sub">A confidential channel for wellbeing, workload, and the good practice happening in our classrooms. No names. No logins. No sign-in trail.</p>
+
+    <div class="seal-row">
+      <svg class="seal" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="28" stroke="#E7D9B8" stroke-width="1.4"/>
+        <circle cx="30" cy="30" r="22" stroke="#E7D9B8" stroke-width="1" stroke-dasharray="2 3"/>
+        <path d="M20 30.5L26.5 37L40.5 22" stroke="#E7D9B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="seal-text">This form collects <b>no name, email, or device identifier</b>. Responses are pooled and only ever reviewed in aggregate, never per submission timestamp order shared with wing heads.</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="intro-card">
+    <p><b>Why this exists:</b> the best improvements to our school culture come from what teachers actually experience day to day — not what leadership assumes. This form takes about 5 minutes.</p>
+    <p><b>What we do with it:</b> responses are reviewed by the Principal's office once every reporting cycle, summarised as themes and numbers, and shared back with staff — what we heard, and what we're changing because of it.</p>
+    <p><b>What we don't do:</b> we don't try to identify who wrote what. If a response is detailed enough to identify a specific person, department, or incident, treat it as a starting point for a conversation you'd want to have anyway — not a report card on any individual.</p>
+  </div>
+
+  <form id="staffVoiceForm">
+
+    <!-- SECTION A: WELLBEING -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter">A</div>
+        <div class="block-titles">
+          <h2>Wellbeing Pulse</h2>
+          <div class="tag">How the work is landing on you</div>
+        </div>
+      </div>
+      <p class="block-desc">Rate each statement honestly. There's no "right" answer — this is a pulse check, not a performance measure.</p>
+
+      <div class="likert-item">
+        <div class="likert-q">1. I am able to leave school most days without carrying unfinished work home in my head.</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wb_worklife" value="1" id="wb1_1"><label for="wb1_1">Rarely true</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_worklife" value="2" id="wb1_2"><label for="wb1_2">Sometimes</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_worklife" value="3" id="wb1_3"><label for="wb1_3">Neutral</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_worklife" value="4" id="wb1_4"><label for="wb1_4">Mostly true</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_worklife" value="5" id="wb1_5"><label for="wb1_5">Always true</label></div>
+        </div>
+      </div>
+
+      <div class="likert-item">
+        <div class="likert-q">2. When something is genuinely bothering me at work, I know who to go to and believe they'll actually listen.</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wb_support" value="1" id="wb2_1"><label for="wb2_1">Not at all</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_support" value="2" id="wb2_2"><label for="wb2_2">A little</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_support" value="3" id="wb2_3"><label for="wb2_3">Somewhat</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_support" value="4" id="wb2_4"><label for="wb2_4">Mostly</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_support" value="5" id="wb2_5"><label for="wb2_5">Completely</label></div>
+        </div>
+      </div>
+
+      <div class="likert-item">
+        <div class="likert-q">3. Over the last month, my stress level at work has been manageable rather than overwhelming.</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wb_stress" value="1" id="wb3_1"><label for="wb3_1">Overwhelming</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_stress" value="2" id="wb3_2"><label for="wb3_2">Heavy</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_stress" value="3" id="wb3_3"><label for="wb3_3">Moderate</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_stress" value="4" id="wb3_4"><label for="wb3_4">Light</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_stress" value="5" id="wb3_5"><label for="wb3_5">Manageable</label></div>
+        </div>
+      </div>
+
+      <div class="likert-item">
+        <div class="likert-q">4. I feel that my effort at this school is noticed and valued, not just expected.</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wb_valued" value="1" id="wb4_1"><label for="wb4_1">Never</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_valued" value="2" id="wb4_2"><label for="wb4_2">Rarely</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_valued" value="3" id="wb4_3"><label for="wb4_3">Sometimes</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_valued" value="4" id="wb4_4"><label for="wb4_4">Often</label></div>
+          <div class="likert-opt"><input type="radio" name="wb_valued" value="5" id="wb4_5"><label for="wb4_5">Consistently</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">If one thing is quietly wearing you down right now, what is it? <span class="optional-pill">Optional</span></label>
+        <textarea name="wb_open" placeholder="Write freely — a sentence or two is enough."></textarea>
+      </div>
+    </section>
+
+    <!-- SECTION B: WORKLOAD -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter oxblood">B</div>
+        <div class="block-titles">
+          <h2>Workload Concerns</h2>
+          <div class="tag">Where the hours are actually going</div>
+        </div>
+      </div>
+      <p class="block-desc">Rate how much strain each area currently adds — this tells us where to simplify first.</p>
+
+      <div class="likert-item">
+        <div class="likert-q">1. Lesson planning &amp; DTP documentation load</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wl_planning" value="1" id="wl1_1"><label for="wl1_1">No strain</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_planning" value="2" id="wl1_2"><label for="wl1_2">Slight</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_planning" value="3" id="wl1_3"><label for="wl1_3">Moderate</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_planning" value="4" id="wl1_4"><label for="wl1_4">Heavy</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_planning" value="5" id="wl1_5"><label for="wl1_5">Unsustainable</label></div>
+        </div>
+      </div>
+
+      <div class="likert-item">
+        <div class="likert-q">2. Non-teaching duties (supervision, events, committees)</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wl_duties" value="1" id="wl2_1"><label for="wl2_1">No strain</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_duties" value="2" id="wl2_2"><label for="wl2_2">Slight</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_duties" value="3" id="wl2_3"><label for="wl2_3">Moderate</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_duties" value="4" id="wl2_4"><label for="wl2_4">Heavy</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_duties" value="5" id="wl2_5"><label for="wl2_5">Unsustainable</label></div>
+        </div>
+      </div>
+
+      <div class="likert-item">
+        <div class="likert-q">3. Assessment &amp; correction load (PT/Term/remedial paperwork)</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wl_assessment" value="1" id="wl3_1"><label for="wl3_1">No strain</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_assessment" value="2" id="wl3_2"><label for="wl3_2">Slight</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_assessment" value="3" id="wl3_3"><label for="wl3_3">Moderate</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_assessment" value="4" id="wl3_4"><label for="wl3_4">Heavy</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_assessment" value="5" id="wl3_5"><label for="wl3_5">Unsustainable</label></div>
+        </div>
+      </div>
+
+      <div class="likert-item">
+        <div class="likert-q">4. Meetings &amp; briefings (frequency and length)</div>
+        <div class="likert-scale">
+          <div class="likert-opt"><input type="radio" name="wl_meetings" value="1" id="wl4_1"><label for="wl4_1">No strain</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_meetings" value="2" id="wl4_2"><label for="wl4_2">Slight</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_meetings" value="3" id="wl4_3"><label for="wl4_3">Moderate</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_meetings" value="4" id="wl4_4"><label for="wl4_4">Heavy</label></div>
+          <div class="likert-opt"><input type="radio" name="wl_meetings" value="5" id="wl4_5"><label for="wl4_5">Unsustainable</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">If we removed or simplified exactly one task from your plate this term, what should it be?</label>
+        <textarea name="wl_open" placeholder="Be specific — the more concrete, the more actionable."></textarea>
+      </div>
+    </section>
+
+    <!-- SECTION C: GOOD PRACTICE -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter sage">C</div>
+        <div class="block-titles">
+          <h2>Good Practice Spotlight</h2>
+          <div class="tag">What's already working — worth spreading</div>
+        </div>
+      </div>
+      <p class="block-desc">This is the section we act on fastest. A good idea here can go straight into the staffroom resource library or a future Teacher of the Month nomination.</p>
+
+      <div class="field">
+        <label class="field-label">Describe one classroom practice, routine, or strategy you use that consistently works. <span class="optional-pill">Optional</span></label>
+        <textarea name="gp_practice" placeholder="e.g. a remedial technique, a way you handle differentiated instruction, a parent-communication habit, a classroom management routine..."></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Is there a colleague (no need to name them if you'd rather not) whose practice you've quietly learned from and think deserves recognition? <span class="optional-pill">Optional</span></label>
+        <textarea name="gp_colleague" placeholder="You can describe the practice without naming anyone, or name them if you're comfortable."></textarea>
+      </div>
+    </section>
+
+    <!-- SECTION D: STAFF VOICE -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter">D</div>
+        <div class="block-titles">
+          <h2>Staff Voice</h2>
+          <div class="tag">Open floor</div>
+        </div>
+      </div>
+      <p class="block-desc">The question we mean most seriously in this whole form.</p>
+
+      <div class="field">
+        <label class="field-label">If you could change exactly one thing about how this school runs, what would it be — and why?</label>
+        <textarea name="sv_change" placeholder="One thing. Be as direct as you like."></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Is there anything leadership should know, but probably doesn't? <span class="optional-pill">Optional</span></label>
+        <textarea name="sv_unknown" placeholder="Anything that's been sitting unsaid."></textarea>
+      </div>
+    </section>
+
+    <!-- OPTIONAL CONTEXT (non-identifying) -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-letter" style="background:var(--ink-soft);">i</div>
+        <div class="block-titles">
+          <h2 style="font-size:16px;">A little context <span class="optional-pill">Optional</span></h2>
+          <div class="tag">Helps us read patterns, not people</div>
+        </div>
+      </div>
+      <p class="block-desc">Kept deliberately broad. If your section has very few staff, feel free to skip this — we'd rather have your honest answers above than a guessable identity below.</p>
+
+      <div class="two-col">
+        <div class="field">
+          <label class="field-label">Wing</label>
+          <select name="ctx_wing">
+            <option value="">Prefer not to say</option>
+            <option value="Primary">Primary (I–V)</option>
+            <option value="Middle">Middle (VI–VIII)</option>
+            <option value="Secondary">Secondary (IX–X)</option>
+            <option value="Non-teaching">Non-teaching / Support staff</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Years at Podar</label>
+          <select name="ctx_tenure">
+            <option value="">Prefer not to say</option>
+            <option value="0-2">0–2 years</option>
+            <option value="3-5">3–5 years</option>
+            <option value="6+">6+ years</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="submit-zone">
+      <p class="reassure">Once submitted, this response cannot be traced back to you or edited by our office — please read it over before sending.</p>
+      <button type="submit" class="submit-btn" id="submitBtn">Submit Anonymously</button>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+  </form>
+
+  <div id="thankyou">
+    <svg class="seal" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="30" r="28" stroke="#AD8A4E" stroke-width="1.4"/>
+      <circle cx="30" cy="30" r="22" stroke="#AD8A4E" stroke-width="1" stroke-dasharray="2 3"/>
+      <path d="M20 30.5L26.5 37L40.5 22" stroke="#AD8A4E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2 class="serif">Received — thank you.</h2>
+    <p>Your response has been added anonymously. Themes from this cycle will be shared back with staff, along with what we're changing because of it.</p>
+  </div>
+
+</div>
+
+<footer class="foot">Podar International School, Jahangirabad · Staff Voice is reviewed by the Principal's Office each cycle · Responses are never shared individually.<br>
+  <a href="https://www.netlify.com" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;">
+    <img src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg" alt="Deploys by Netlify" style="height:28px;width:auto;">
+  </a>
+</footer>
+
+<!-- config.js defines window.FORM_ENDPOINT and is gitignored — copy config.example.js to create it -->
+<script src="config.js"></script>
+<script>
+  // Free, uncapped backend: a Google Apps Script Web App writing to a Google Sheet.
+  // FORM_ENDPOINT is intentionally NOT hardcoded here — see config.js, which is
+  // gitignored so your live deployment URL never lands in the public repo.
+  // Copy config.example.js to config.js and paste your own /exec URL there.
+
+  const form = document.getElementById('staffVoiceForm');
+  const statusMsg = document.getElementById('statusMsg');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+    statusMsg.textContent = "";
+    statusMsg.className = "status-msg";
+
+    const formData = new FormData(form);
+    const payload = {};
+    formData.forEach((value, key) => { payload[key] = value; });
+
+    try{
+      if (!window.FORM_ENDPOINT) {
+        throw new Error('FORM_ENDPOINT is not set. Copy config.example.js to config.js and add your Apps Script /exec URL.');
+      }
+      // mode: 'no-cors' avoids a CORS preflight against Apps Script.
+      // The response is opaque, so we treat "no network error" as success.
+      await fetch(window.FORM_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      form.style.display = 'none';
+      document.getElementById('thankyou').style.display = 'block';
+      window.scrollTo({top:0, behavior:'smooth'});
+    } catch(err){
+      statusMsg.textContent = "Something went wrong sending this. Please check your connection and try again, or contact the office if it persists.";
+      statusMsg.className = "status-msg error";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Anonymously";
+    }
+  });
+</script>
+
+</body>
+</html>
